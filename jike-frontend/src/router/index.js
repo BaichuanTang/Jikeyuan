@@ -2,30 +2,32 @@ import {createBrowserRouter, Navigate} from "react-router-dom";
 import Login from "@/pages/Login";
 import Layout from "@/pages/Layout";
 import {AuthRoute} from "@/components/AuthRoute";
-import Home from "@/pages/Home";
-import Article from "src/pages/Article";
-import Publish from "@/pages/Publish";
+import {lazy, Suspense} from "react";
+
+const Home = lazy(() => import("@/pages/Home"))
+const Article = lazy(() => import("@/pages/Article"))
+const Publish = lazy(() => import("@/pages/Publish"))
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthRoute><Layout/></AuthRoute>,
-    children:[
+    children: [
       {
-        path:'',
-        element:<Navigate to="/home" replace/>
+        path: '',
+        element: <Navigate to="/home" replace/>
       },
       {
-        path:'/home',
-        element:<Home/>
+        path: '/home',
+        element: <Suspense fallback="加载中"><Home/></Suspense>
       },
       {
-        path:'/Article',
-        element:<Article/>
+        path: '/Article',
+        element: <Suspense fallback="加载中"><Article/></Suspense>
       },
       {
-        path:'/publish',
-        element:<Publish/>
+        path: '/publish',
+        element: <Suspense fallback="加载中"><Publish/></Suspense>
       }
     ]
   },
