@@ -17,7 +17,7 @@
 
 ## 点评视频
 
-观看点评视频，了解项目的更多细节：[点评视频](https://www.bilibili.com/video/BV1Ga4y1S7jc/)
+观看点评视频，了解项目的更多细节：[点评视频](https://www.bilibili.com/video/BV1M34y1w7D6/)
 
 ## 项目感受
 
