@@ -1,24 +1,18 @@
 import {Breadcrumb, Button, Card, Form, Input, message, Radio, Select, Space, Upload} from 'antd'
-import {Link} from 'react-router-dom'
+import {Link, useSearchParams} from 'react-router-dom'
 import './index.scss'
 import 'react-quill/dist/quill.snow.css'
 import ReactQuill from "react-quill";
 import {useEffect, useRef, useState} from "react";
-import {createArticleApi, getChannelApi} from "@/apis/article";
+import {createArticleApi, getArticleByIdApi, updateArticleApi} from "@/apis/article";
 import {PlusOutlined} from "@ant-design/icons";
+import {useChannel} from "@/hooks/useChannel";
 
 
 const {Option} = Select
 
 const Publish = () => {
-  const [channelList, setChannelList] = useState([])
-  useEffect(() => {
-    const getChannelList = async () => {
-      const result = await getChannelApi();
-      setChannelList(result.data.channels)
-    }
-    getChannelList()
-  }, []);
+  const {channelList} = useChannel();
 
   // 提交表单
   const onFinish = async (formValue) => {
@@ -33,19 +27,31 @@ const Publish = () => {
       content,
       cover: {
         type: imageType,
-        images: imageList.map(item => item.response.data.url)
+        // 新增时这样取
+        images: imageList.map(item => {
+          if(item.response){
+            return item.response.data.url
+          }else {
+            return item.url
+          }
+        })
       },
       channel_id: channel_id
     }
-    await createArticleApi(params)
-    message.success('发布文章成功')
+    // 新增或者编辑
+    if(articleId){
+      await updateArticleApi(params,articleId)
+    }else {
+      await createArticleApi(params)
+    }
+    
+    message.success(`${articleId ? '编辑文章成功' : '发布文章成功'}`)
   }
 
   // 如果当前为三图模式，已经完成了上传，选择单图只显示一张，再切换到三图继续显示三张。
   const cacheImageList = useRef([])
   const [imageList, setImageList] = useState([])
   const onUploadChange = (value) => {
-    setImageList(value.fileList)
     cacheImageList.current = value.fileList
   }
 
@@ -64,13 +70,37 @@ const Publish = () => {
     }
   }
 
+  // 回填数据
+  const [searchParams] = useSearchParams();
+  const articleId = searchParams.get("id");
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    const getArticleDetail = async () => {
+      const res = await getArticleByIdApi(articleId);
+      form.setFieldsValue({
+        ...res.data,
+        type: res.data.cover.type,
+
+      })
+      setImageType(res.data.cover.type)
+      setImageList(res.data.cover.images.map(url => {
+        return {url}
+      }))
+    }
+    // 只有在有id时才调用
+    if (articleId) {
+      getArticleDetail()
+    }
+  }, [articleId, form]);
+
   return (
     <div className="publish">
       <Card
         title={
           <Breadcrumb items={[
             {title: <Link to={'/'}>首页</Link>},
-            {title: '发布文章'},
+            {title: `${articleId ? '编辑文章' : '发布文章'}`},
           ]}
           />
         }
@@ -80,6 +110,7 @@ const Publish = () => {
           wrapperCol={{span: 16}}
           initialValues={{type: 0}}
           onFinish={onFinish}
+          form={form}
         >
           <Form.Item
             label="标题"
@@ -141,7 +172,7 @@ const Publish = () => {
           <Form.Item wrapperCol={{offset: 4}}>
             <Space>
               <Button size="large" type="primary" htmlType="submit">
-                发布文章
+                {articleId ? '编辑文章' : '发布文章'}
               </Button>
             </Space>
           </Form.Item>

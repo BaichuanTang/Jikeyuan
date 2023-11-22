@@ -22,7 +22,7 @@ const router = createBrowserRouter([
         element: <Suspense fallback="加载中"><Home/></Suspense>
       },
       {
-        path: '/Article',
+        path: '/article',
         element: <Suspense fallback="加载中"><Article/></Suspense>
       },
       {
