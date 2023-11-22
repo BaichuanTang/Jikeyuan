@@ -13,7 +13,7 @@
 
 ## 项目组成
 
-- **前端项目**：[big-event-frontend](https://github.com/BaichuanTang/Jikeyuan/tree/main/jike-frontend)
+- **前端项目**：[jike-frontend](https://github.com/BaichuanTang/Jikeyuan/tree/main/jike-frontend)
 
 ## 点评视频
 
